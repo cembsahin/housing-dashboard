@@ -92,3 +92,8 @@ def filter_data(
         filtered = filtered[filtered["date"] <= pd.to_datetime(end_date)]
 
     return filtered
+
+def add_yoy_change(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df["yoy_change"] = df.groupby("state")["median_home_value"].pct_change(periods=12) * 100
+    return df

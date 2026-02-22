@@ -11,21 +11,22 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 
-from utils.data_loader import load_zhvi_data, get_states, filter_data
+from utils.data_loader import load_zhvi_data, get_states, filter_data, add_yoy_change
 
 
-# ── Page config ──────────────────────────────────────────────
+
+# ── Page config ──
 st.set_page_config(
     page_title="Housing Market Dashboard",
-    page_icon="🏠",
+    page_icon="",
     layout="wide",
 )
 
-st.title("🏠 Housing Market Dashboard")
+st.title("Housing Market Dashboard")
 st.markdown("Explore US median home value trends using [Zillow Research Data](https://www.zillow.com/research/data/).")
 
 
-# ── Load data ────────────────────────────────────────────────
+# ── Load data ──
 @st.cache_data
 def get_data():
     """Load data once and cache it so the app stays fast."""
@@ -36,13 +37,13 @@ try:
     df = get_data()
 except FileNotFoundError:
     st.error(
-        "⚠️ Data file not found. Please run the download script first:\n\n"
+        "Data file not found. Please run the download script first:\n\n"
         "```bash\npython scripts/download_data.py\n```"
     )
     st.stop()
 
 
-# ── Sidebar filters ─────────────────────────────────────────
+# ── Sidebar filters ──
 st.sidebar.header("Filters")
 
 all_states = get_states(df)
@@ -50,7 +51,7 @@ all_states = get_states(df)
 selected_states = st.sidebar.multiselect(
     "Select states to compare",
     options=all_states,
-    default=["California", "Texas", "New York", "Florida"],
+    default=["New Jersey", "New York", "California"],
     help="Pick one or more states to see on the chart.",
 )
 
@@ -61,7 +62,7 @@ date_range = st.sidebar.slider(
     "Date range",
     min_value=min_date,
     max_value=max_date,
-    value=(pd.Timestamp("2015-01-01").to_pydatetime(), max_date),
+    value=(pd.Timestamp("2002-01-01").to_pydatetime(), max_date),
     format="MMM YYYY",
 )
 
@@ -74,7 +75,7 @@ filtered_df = filter_data(
 )
 
 
-# ── Main chart: price trends ────────────────────────────────
+# ── Main chart: price trends ───
 if filtered_df.empty:
     st.warning("No data to display. Try adjusting your filters.")
     st.stop()
@@ -105,7 +106,7 @@ fig_trend.update_layout(
 st.plotly_chart(fig_trend, use_container_width=True)
 
 
-# ── Summary metrics ──────────────────────────────────────────
+# ── Summary metrics ──
 st.subheader("Current Snapshot")
 
 latest_date = filtered_df["date"].max()
@@ -136,7 +137,7 @@ for i, (_, row) in enumerate(latest_data.iterrows()):
     )
 
 
-# ── Bar chart: latest values comparison ──────────────────────
+# ── Bar chart: latest values comparison ───
 st.subheader("State Comparison (Latest Month)")
 
 fig_bar = px.bar(
@@ -160,13 +161,26 @@ fig_bar.update_layout(
     coloraxis_showscale=False,
     height=max(300, len(latest_data) * 40),
 )
+yoy_df = add_yoy_change(filtered_df)
+st.subheader("Year-over-Year Price Change (%)")
+fig_yoy= px.line(
+    yoy_df,
+    x="date",
+    y="yoy_change",
+    color="state",
+    labels={
+        "date": "Date",
+        "yoy_change": "Year-over-Year Change (%)",
+        "state": "State",
+    },
+    template="plotly_white",
+ )
+st.plotly_chart(fig_yoy, use_container_width=True)
 
-st.plotly_chart(fig_bar, use_container_width=True)
-
-
-# ── Footer ───────────────────────────────────────────────────
+# ── Footer ──
 st.divider()
 st.caption(
     f"Data source: Zillow Home Value Index (ZHVI) · Last data point: {latest_date.strftime('%B %Y')} · "
     "Built with Streamlit & Plotly"
+
 )
