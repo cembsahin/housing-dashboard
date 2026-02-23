@@ -11,7 +11,7 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 
-from utils.data_loader import load_zhvi_data, get_states, filter_data, add_yoy_change
+from utils.data_loader import load_zhvi_data, get_states, filter_data, add_yoy_change, add_state_codes
 
 
 
@@ -177,6 +177,17 @@ fig_yoy= px.line(
  )
 st.plotly_chart(fig_yoy, use_container_width=True)
 
+map_data = add_state_codes(latest_data)
+st.subheader("Median Home Value by State")
+fig_map = px.choropleth(
+    map_data,
+    locations= "state_code",
+    locationmode="USA-states",
+    color="median_home_value",
+    scope="usa",
+)
+
+st.plotly_chart(fig_map, use_container_width=True)
 # ── Footer ──
 st.divider()
 st.caption(
