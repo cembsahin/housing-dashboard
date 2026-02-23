@@ -11,7 +11,7 @@ import streamlit as st
 import plotly.express as px
 import pandas as pd
 
-from utils.data_loader import load_zhvi_data, get_states, filter_data, add_yoy_change, add_state_codes
+from utils.data_loader import load_zhvi_data, get_states, filter_data, add_yoy_change, add_state_codes, load_mortgage_rates
 
 
 
@@ -188,6 +188,14 @@ fig_map = px.choropleth(
 )
 
 st.plotly_chart(fig_map, use_container_width=True)
+
+mortgage_data = load_mortgage_rates()
+st.subheader("30-Year Fixed Mortgage Rate (%)")
+fig_mortgage = px.line(mortgage_data, x="date", y="value", labels={"date": "Date", "value": "Mortgage Rate (%)"}, template="plotly_white")
+st.plotly_chart(fig_mortgage, use_container_width=True)
+
+
+
 # ── Footer ──
 st.divider()
 st.caption(

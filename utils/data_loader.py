@@ -7,6 +7,8 @@ into a clean, long-format DataFrame ready for visualization.
 
 import os
 import pandas as pd
+import requests
+import streamlit as st
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 STATE_CODES = {"Alabama": "AL",
@@ -160,3 +162,21 @@ def add_yoy_change(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df["yoy_change"] = df.groupby("state")["median_home_value"].pct_change(periods=12) * 100
     return df
+
+
+def load_mortgage_rates()  -> pd.DataFrame:
+    api_key =st.secrets["FRED_API_KEY"]
+    url = "https://api.stlouisfed.org/fred/series/observations"
+    params = {"series_id":"MORTGAGE30US",
+              "api_key":api_key,
+              "file_type":"json"
+              }
+
+    response = requests.get(url, params=params, timeout=30)
+    data = response.json()
+    df = pd.DataFrame(data["observations"])
+    df["date"] = pd.to_datetime(df["date"])
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+    return df
+
+
