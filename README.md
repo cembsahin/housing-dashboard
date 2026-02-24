@@ -1,5 +1,7 @@
 # 🏠 Housing Market Dashboard
 
+[Live Demo](https://housing-dashboard-8c7rwnyrptfglbexwg825h.streamlit.app/)
+
 An interactive Python dashboard that visualizes US housing market trends using real data from Zillow and the FRED API.
 
 Built with **Streamlit**, **Plotly**, and **Pandas**.
@@ -78,11 +80,11 @@ housing-dashboard/
 
 - [x] Basic price trend chart
 - [x] State filter and date range selector
-- [ ] Add inventory / days on market data
-- [ ] Mortgage rate overlay (FRED API)
-- [ ] Choropleth map view
-- [ ] Year-over-year % change charts
-- [ ] Deploy to Streamlit Community Cloud
+- [x] Add inventory / days on market data
+- [x] Mortgage rate overlay (FRED API)
+- [x] Choropleth map view
+- [x] Year-over-year % change charts
+- [x] Deploy to Streamlit Community Cloud
 
 ## License
 
